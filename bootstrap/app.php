@@ -1,10 +1,13 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,11 +19,16 @@ return Application::configure(basePath: dirname(__DIR__))
     
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'abilities' => CheckAbilities::class,
-            'ability' =>CheckForAnyAbility::class
+            // 'abilities' => CheckAbilities::class,
+            // 'ability' =>CheckForAnyAbility::class
         ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions) {
-        // Handling api error
+        $exceptions->render(function (NotFoundHttpException $e, Request $request){
+            return response()->json([
+                'error' => 'Task Not Found',
+                'message' => $e->getMessage()
+            ], 400);
+        });
     })->create();
