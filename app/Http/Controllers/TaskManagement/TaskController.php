@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskManagement\AddTask;
 use App\Http\Requests\TaskManagement\UpdateTask;
 use App\Models\Task;
+use App\Services\TaskManagement\TaskService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,11 +16,16 @@ use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
+
     //
     use ApiResponseHelpers;
 
+    public function __construct(private readonly TaskService $task_service) {
+        
+    }
     public function list(){
-        $tasks = auth()->user()->tasks;
+
+        $tasks = $this->task_service->getAllTasks();
 
         return $this->respondWithSuccess([
             'message' => 'displaying all tasks',
@@ -31,10 +37,7 @@ class TaskController extends Controller
 
     public function add(AddTask $request){
 
-        $validatedData = $request->validated();
-        $validatedData['user_id'] = Auth::id();
-
-        $task = Task::create($validatedData);
+        $task = $this->task_service->addTask($request->validated());
 
         return $this->respondCreated([
             'message' => 'Task created successfully.',
@@ -45,37 +48,26 @@ class TaskController extends Controller
     }
 
     public function edit(UpdateTask $request, $id){
-        // try{
-             $task = auth()->user()->tasks()->findOrFail($id);
 
-            $validatedData = $request->validated();
-
-            $task->update($validatedData);
+            $task = $this->task_service->updateTask($request->validated(), $id);
 
             return $this->respondWithSuccess([
                 'message' => 'Task Found & Updated',
                 'success' => true,
                 'updated_task' => $task,
             ]);
-        // } catch (ModelNotFoundException $e) {
-            // return $this->respondNotFound('Task not found.');
-        // }
        
     }
 
     public function destroy(Request $request, $id){
-        try{
-            
-            $task = auth()->user()->tasks()->findOrFail($id);
-            $task->delete();
-            return $this->respondOk("Task Deleted Successfully");
+        
+            $this->task_service->deleteTask($id);
 
-        }catch(ModelNotFoundException $e){
+            return $this->respondWithSuccess([
+                'message' => 'Task Deleted Successfully',
+                'success' => true,
+            ]);
 
-            return $this->respondNotFound("Task Not Found");
-            
-        }
-       
     }
 }
 

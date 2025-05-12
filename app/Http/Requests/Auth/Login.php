@@ -23,7 +23,7 @@ class Login extends FormRequest
     {
         return [
             //
-            'email' => 'required|email',
+            'email' => 'required|email|exists:users,email',//user table exists
             'password' => 'required|string|min:6'
         ];
     }

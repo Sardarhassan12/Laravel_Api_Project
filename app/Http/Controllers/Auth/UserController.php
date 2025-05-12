@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\Register;
 use App\Http\Requests\Auth\Login;
 use App\Models\User;
+use App\Services\Auth\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use F9Web\ApiResponseHelpers;
@@ -14,17 +15,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
-
+//Auth Controller
 class UserController extends Controller
 {
     use ApiResponseHelpers;
     //
+    public function __construct(private readonly AuthService $auth_service) {
+        
+    }
     public function register(Register $request){
-        $validatedData = $request->validated();
-
-        $validatedData['password'] = Hash::make($validatedData['password']);
-
-        $registerUser = User::create($validatedData);
+        
+        $registerUser = $this->auth_service->register($request->validated());
 
         return $this->respondWithSuccess([
             'success' => true,
@@ -38,27 +39,24 @@ class UserController extends Controller
 
         $credentials = $request->validated();
 
-        if(Auth::attempt($credentials)){
-            
-            $user = Auth::user();
-            
-            $token = $user->createToken('user_token', ['*'], now()->addSeconds(12000))->plainTextToken;
-            
-            return $this->respondWithSuccess([
-                'message' => 'Login Successful',
-                'success' => true,
-                'user' => $credentials,
-                'token' => $token,
-            ]);
+        if(!Auth::attempt($credentials)){
+         
+            return $this->respondUnAuthenticated('Unauthenticated Credentials');
+
         }
 
-        return $this->respondUnAuthenticated('UnAuthrize Credentials');
+        $loginData = $this->auth_service->login();
+
+        return $this->respondWithSuccess([
+            'message' => 'Login successful',
+            'success' => true,
+            'user' => $loginData['user'],
+            'token' => $loginData['token'],
+        ]);
     }
 
     public function logout(Request $request){
-        $user = $request->user(); 
-        
-        $user->currentAccessToken()->delete();
+        $this->auth_service->logout($request->user());
 
         return $this->respondOk('Logout');
     }
