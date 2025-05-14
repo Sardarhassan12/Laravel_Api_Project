@@ -1,32 +1,27 @@
 <?php
 namespace App\DTO\Auth;
 
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\Auth\Register;
 
-class AuthDTO{
+class AuthDTO
+{
 
-    public string $firstName;
-    public string $lastName;
-    public string $email;
-    public string $password;
+    public function __construct(
+            public string $firstName,
+            public string $lastName,
+            public string $email,
+            public string $password
+        ) {}
 
-
-    public function store(array $data){
-
-        $this->firstName = $data['firstName'];
-        $this->lastName = $data['lastName'];
-        $this->email = $data['email'];
-        $this->password = Hash::make($data['password']);
-
+    public static function fromApiRequest(Register $request) : self
+    {
+        return new self(
+            $request->validated(['firstName']),
+            $request->validated(['lastName']),
+            $request->validated(['email']),
+            $request->validated(['password'])
+        );
     }
-
-    public function toArray(): array{
-        return [
-            'firstName' => $this->firstName,
-            'lastName' => $this->lastName,
-            'email' => $this->email,
-            'password' => $this->password,
-        ];
-    }
+    
     
 }

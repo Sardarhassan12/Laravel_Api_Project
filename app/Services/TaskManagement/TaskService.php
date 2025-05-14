@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\TaskManagement;
 
+use App\DTO\TaskManagement\TaskDTO;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
 
@@ -12,20 +13,25 @@ class TaskService {
 
     }
 
-    public function addTask(array $validatedData){
+    public function addTask(TaskDTO $validatedData){
         
-        $validatedData['user_id'] = Auth::id();
-
-        return Task::create($validatedData);
+        return Task::create([
+            'title' => $validatedData->title,
+            'description' => $validatedData->description,
+            'deadline' => $validatedData->deadline->toDateTimeString(),
+            'user_id' => Auth::id()
+        ]);
     }
 
-    public function updateTask(array $validatedData, $id){
+    public function updateTask(TaskDTO $validatedData, $id){
         
         $task = auth()->user()->tasks()->findOrFail($id);
         
-        $task->update($validatedData);
-
-        return $task;
+        return $task->update([
+            'title' => $validatedData->title,
+            'description' => $validatedData->description,
+            'deadline' => $validatedData->deadline->toDateTimeString()
+        ]);
 
     }
 

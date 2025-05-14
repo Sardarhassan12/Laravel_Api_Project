@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\TaskManagement;
 
+use App\DTO\TaskManagement\TaskDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskManagement\AddTask;
 use App\Http\Requests\TaskManagement\UpdateTask;
 use App\Models\Task;
 use App\Services\TaskManagement\TaskService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -17,7 +19,6 @@ use Illuminate\Http\JsonResponse;
 class TaskController extends Controller
 {
 
-    //
     use ApiResponseHelpers;
 
     public function __construct(private readonly TaskService $task_service) {
@@ -37,7 +38,7 @@ class TaskController extends Controller
 
     public function add(AddTask $request){
 
-        $task = $this->task_service->addTask($request->validated());
+        $task = $this->task_service->addTask(TaskDTO::fromApiAddTask($request));
 
         return $this->respondCreated([
             'message' => 'Task created successfully.',
@@ -48,8 +49,8 @@ class TaskController extends Controller
     }
 
     public function edit(UpdateTask $request, $id){
-
-            $task = $this->task_service->updateTask($request->validated(), $id);
+        
+            $task = $this->task_service->updateTask(TaskDTO::fromApiEditTask($request), $id);
 
             return $this->respondWithSuccess([
                 'message' => 'Task Found & Updated',
@@ -73,65 +74,3 @@ class TaskController extends Controller
 
 
 
-
-
-
-    // public function add(Request $request){
-
-    //     $validation = Validator::make($request->all(), [
-    //         'title' => 'required|string',
-    //         'description' => 'required|string',
-    //         'deadline' => 'required|date',
-    //     ]);
-
-    //     if($validation->fails()){
-    //         return response()->json([
-    //             'message' => 'InValid Data',
-    //             'errors' => $validation->errors()
-    //         ],402);
-    //     }
-
-    //     $validatedData = $validation->validated();
-    //     $validatedData['user_id'] = Auth::id();
-
-    //     $task = Task::create($validatedData);
-
-    //     return response()->json([
-    //         'message'=> 'Data save successfully',
-    //         'task' => $task
-    //     ]);
-
-    // }
-
-    // public function edit(Request $request, $id){
-        
-    //     $task = Task::findOrFail($id);
-        
-    //     if(Auth::id() != $task->user->id ){
-    //         return response()->json([
-    //             'message' => 'This task does not belongs to you'
-    //         ]);
-    //     }
-
-    //     $validation = Validator::make($request->all(), [
-    //         'title' => 'required|string',
-    //         'description' => 'required|string',
-    //         'deadline' => 'required|date',
-    //     ]);
-
-    //     if($validation->fails()){
-    //         return response()->json([
-    //             'message' => 'InValid Data',
-    //             'errors' => $validation->errors()
-    //         ],402);
-    //     }
-
-    //     $validatedData = $validation->validated();
-
-    //     $task->update($validatedData);
-
-    //     return response()->json([
-    //         'message' => 'Task Found & Updated',
-    //         'updated_task' => $task
-    //     ]);
-    // }

@@ -28,7 +28,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (NotFoundHttpException $e, Request $request){
             return response()->json([
                 'error' => 'Resource Not Found',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'success' => false
             ], 400);
+        });
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+            return response()->json([
+                'error' => 'Unauthenticated',
+                'message' => $e->getMessage(),
+                'success' => false
+            ], 401); 
         });
     })->create();

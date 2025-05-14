@@ -1,17 +1,17 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\TaskManagement\TaskController;
-use App\Http\Controllers\Auth\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-//User Related Routes
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
 
-Route::middleware('auth:sanctum')->group(function(){
+Route::middleware('auth:sanctum', 'verified')->group(function(){
 
-    Route::post('/logout', [UserController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::controller(TaskController::class)->group(function(){
         Route::post('task/add', 'add');
