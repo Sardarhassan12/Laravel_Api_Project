@@ -26,7 +26,8 @@ class Register extends FormRequest
             'firstName' => 'required|string',
             'lastName' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6'
+            'password' => 'required|string|min:6',
+            'role' => 'required|string|in:Subscribed User,Unsubscribed User'
         ];
     }
 
@@ -38,7 +39,9 @@ class Register extends FormRequest
             'email.required' => "Email is required",
             "email.unique" => "This email already exist",
             "password.required" => "Password is required",
-            "password.min" => "Password must be grater than 6 character"
+            "password.min" => "Password must be grater than 6 character",
+            'role.required' => "Role is required",
+            'role.in' => "Role must be Subscribed User or Unsubscribed User",
         ];
     }
 

@@ -14,39 +14,14 @@ Route::middleware('auth:sanctum', 'verified')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::controller(TaskController::class)->group(function(){
-        Route::post('task/add', 'add');
-        Route::get('task/list', 'list');
-        Route::patch('task/edit/{id}', 'edit');
-        Route::delete('task/destroy/{id}','destroy');
+        Route::post('task/add', 'add')->middleware('permission:create task');
+        Route::get('task/list', 'list')->middleware('permission:view task');
+        Route::patch('task/edit/{id}', 'edit')->middleware('permission:update task');
+        Route::delete('task/destroy/{id}','destroy')->middleware('permission:delete task');
+        Route::post('/task/import', 'import')->middleware('permission:import task');
+        Route::get('/task/export', 'export')->middleware('permission:export task');
+        Route::get('/task/pdf','generatePDF')->middleware('permission:generate pdf');
     });
     
+    
 });
-
-
-
-
-
-
-//-----------------------------------------------------------------//
-// Route::middleware('auth:sanctum')->group(function () {
-
-//     // Logout route
-//     Route::post('/logout', [UserController::class, 'logout']);
-
-//     // Grouped Task routes
-//     Route::prefix('tasks')->controller(TaskController::class)->group(function () {
-//         Route::post('/add', 'add');
-//         Route::get('/list', 'list');
-//         Route::patch('/edit/{id}', 'edit');
-//         Route::delete('/delete/{id}', 'delete'); // optional
-//         Route::get('/show/{id}', 'show');        // optional
-//     });
-// });
-
-//------------------------------------------------------------------------------------------//
-// Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
-
-// //Task Related Routes
-// Route::post('/add', [TaskController::class, 'add'])->middleware('auth:sanctum');
-// Route::get('/list', [TaskController::class, 'list'])->middleware('auth:sanctum');
-// Route::patch('/edit/{id}', [TaskController::class, 'edit'])->middleware('auth:sanctum');

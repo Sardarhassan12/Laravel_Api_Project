@@ -19,11 +19,11 @@ class AuthService {
             'firstName' => $validatedData->firstName,
             'lastName' => $validatedData->lastName,
             'email' => $validatedData->email,
-            'password' => Hash::make($validatedData->password)
+            'password' => Hash::make($validatedData->password),
         ]);
 
         event(new Registered($user));
-
+        $user->assignRole($validatedData->role);
         return $user;
     
     }

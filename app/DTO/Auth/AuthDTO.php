@@ -10,7 +10,8 @@ class AuthDTO
             public string $firstName,
             public string $lastName,
             public string $email,
-            public string $password
+            public string $password,
+            public string $role
         ) {}
 
     public static function fromApiRequest(Register $request) : self
@@ -19,7 +20,8 @@ class AuthDTO
             $request->validated(['firstName']),
             $request->validated(['lastName']),
             $request->validated(['email']),
-            $request->validated(['password'])
+            $request->validated(['password']),
+            $request->validated(['role'])
         );
     }
     
